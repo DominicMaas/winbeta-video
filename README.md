@@ -1,10 +1,13 @@
 # WinBeta Video
 
 WinBeta Video is a very simple Windows 10 app that displays and plays YouTube videos from the WinBeta YouTube channel.
+WinBeta Video requires the YouTube .NET API, and both MyToolkit and MyToolkit Extended (For playing YouTube Videos)
 
 ## Requirements
-* Windows 10 RTM Build
+* Windows 10 RTM Build (or higher)
 * YouTube v3 API ([NuGet] (https://www.nuget.org/packages/Google.Apis.YouTube.v3/))
+* MyToolkit ([NuGet] (https://www.nuget.org/packages/MyToolkit/))
+* MyToolkit Extended ([NuGet] (https://www.nuget.org/packages/MyToolkit.Extended/))
 
 ## Features (and Planned Features)
 * [x] View all Videos

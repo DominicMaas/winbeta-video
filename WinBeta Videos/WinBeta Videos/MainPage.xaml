@@ -16,21 +16,23 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid Background="#FFE6E6E6" Height="50" VerticalAlignment="Top" HorizontalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="#FFC5C5C5">
-            <AppBarButton Icon="Refresh" Foreground="#FF0078D7"/>
-            <AppBarButton Icon="Setting" Foreground="#FF0078D7" HorizontalAlignment="Right"/>
-            <AppBarButton Icon="Filter" Foreground="#FF0078D7" Margin="0,0,70,0" HorizontalAlignment="Right"/>
-            <AppBarButton Icon="Find" HorizontalAlignment="Right" Margin="0,0,140,0" Foreground="#FF0078D7"/>
+            <AppBarButton x:Name="refreshButton" Icon="Refresh" Foreground="#FF0078D7" Tapped="refreshButton_Tapped"/>
+            <AppBarButton x:Name="settingsButton"  Icon="Setting" Foreground="#FF0078D7" HorizontalAlignment="Right"/>
+            <AppBarButton x:Name="filterButton" Icon="Filter" Foreground="#FF0078D7" Margin="0,0,70,0" HorizontalAlignment="Right"/>
+            <AppBarButton x:Name="searchButton" Icon="Find" HorizontalAlignment="Right" Margin="0,0,140,0" Foreground="#FF0078D7"/>
             <TextBlock Text="Videos"  HorizontalAlignment="Center" TextAlignment="Center" FontWeight="SemiBold" FontSize="20" Foreground="#FF4F4F4F" VerticalAlignment="Center"></TextBlock>
         </Grid>
         <GridView x:Name="listView" HorizontalAlignment="Center" Margin="0,60,0,0" VerticalAlignment="Stretch" ItemsSource="{Binding}">
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Background="#FFE6E6E6" Margin="5" HorizontalAlignment="Stretch" MaxWidth="580" Height="295" BorderBrush="#FFC5C5C5" BorderThickness="1,1,1,1">
+                    <Grid Background="#FFE6E6E6" Margin="5" HorizontalAlignment="Stretch" MaxWidth="580" Height="340" BorderBrush="#FFC5C5C5" BorderThickness="1,1,1,1">
                         <TextBlock IsTextScaleFactorEnabled="False" FontStretch="Normal" Height="40" Margin="10,10,10,20" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" Text="{Binding Title}" FontSize="20" FontWeight="Normal" Foreground="#FF1F1F1F" VerticalAlignment="Top"/>
-                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Left" Width="580" Height="326" Margin="10,50,10,10"/>
+                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Left" Width="580" Height="326" Margin="10,50,10,40" Stretch="UniformToFill"/>
+                        <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="16" Text="{Binding Date}"></TextBlock>
                      </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
+        <ProgressRing x:Name="progressRing" HorizontalAlignment="Center" VerticalAlignment="Center" Width="64" Height="64"/>
     </Grid>
 </Page>

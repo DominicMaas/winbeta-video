@@ -6,20 +6,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <!--<Page.TopAppBar >
-        <CommandBar Margin="0,0,0,0" HorizontalAlignment="Stretch" Foreground="{ThemeResource SystemControlBackgroundAccentBrush}">
-            <AppBarButton Icon="Microphone" Foreground="{ThemeResource SystemControlBackgroundAccentBrush}"/>
-            <AppBarButton Icon="Setting" Foreground="{ThemeResource SystemControlBackgroundAccentBrush}"/>
-        </CommandBar>
-        
-    </Page.TopAppBar>-->
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid Background="#FFE6E6E6" Height="50" VerticalAlignment="Top" HorizontalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="#FFC5C5C5">
             <AppBarButton x:Name="refreshButton" Icon="Refresh" Foreground="#FF0078D7" Tapped="refreshButton_Tapped"/>
-            <AppBarButton x:Name="settingsButton"  Icon="Setting" Foreground="#FF0078D7" HorizontalAlignment="Right"/>
+            <AppBarButton x:Name="searchButton" Icon="Find" Foreground="#FF0078D7" Margin="70,0,0,0"/>
+
+            <AppBarButton x:Name="settingsButton" Icon="Setting" Foreground="#FF0078D7" HorizontalAlignment="Right"/>
             <AppBarButton x:Name="filterButton" Icon="Filter" Foreground="#FF0078D7" Margin="0,0,70,0" HorizontalAlignment="Right"/>
-            <AppBarButton x:Name="searchButton" Icon="Find" HorizontalAlignment="Right" Margin="0,0,140,0" Foreground="#FF0078D7"/>
+           
             <TextBlock Text="Videos"  HorizontalAlignment="Center" TextAlignment="Center" FontWeight="SemiBold" FontSize="20" Foreground="#FF4F4F4F" VerticalAlignment="Center"></TextBlock>
         </Grid>
         <GridView x:Name="listView" HorizontalAlignment="Center" Margin="0,60,0,0" VerticalAlignment="Stretch" ItemsSource="{Binding}">

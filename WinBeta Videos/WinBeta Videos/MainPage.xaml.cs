@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Controls;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Windows.UI.Core;
 
 namespace WinBeta_Videos
 {
@@ -36,6 +37,13 @@ namespace WinBeta_Videos
             B = 235
         };
 
+        Color AppNotFocused = new Color()
+        {
+            R = 230,
+            G = 230,
+            B = 230
+        };
+
         YouTubeService youtubeService; // Used for accessing API
         string WinBetaChannelId = "UC70UzaroFf5GcyecHOGw-tw"; // WinBeta Channel ID
         ObservableCollection<Video> videos_data; // Holds the videos
@@ -57,6 +65,14 @@ namespace WinBeta_Videos
             applicationView.TitleBar.ButtonHoverForegroundColor = Colors.White;
             applicationView.TitleBar.ForegroundColor = Colors.White;
             applicationView.TitleBar.ButtonForegroundColor = Colors.White;
+
+            applicationView.TitleBar.InactiveBackgroundColor = AppNotFocused;
+            applicationView.TitleBar.ButtonInactiveBackgroundColor = AppNotFocused;
+
+            applicationView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+            applicationView.TitleBar.InactiveForegroundColor = Colors.DarkGray;
+
+            Windows.UI.Core.SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
         }
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
@@ -190,7 +206,7 @@ namespace WinBeta_Videos
 
             // Send a request to the YouTube API to search for playlists on youtube channel 
             // (for now only grab upload playlist, later on will grab all playlists and let user filter)
-            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
+            var playlistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
             playlistRequest.PlaylistId = selectedPlaylist.ID; // Get the uploads playlist
             playlistRequest.MaxResults = 50; // Max of 50 results
 
@@ -204,9 +220,10 @@ namespace WinBeta_Videos
                 // Create a video object to pass into the data context
                 Video video = new Video() {
                     Title = playlistItem.Snippet.Title, // Video Title
-                    Thumbnail = GetVideoThumbnail(playlistItem), // Video thumbnail <- This function gets the highest quality avaliable
-                    Date = ConvertVideoDateTime(playlistItem.Snippet.PublishedAt) // Get the published date (formated and converted to correct time zone)
-                };
+                    Thumbnail = GetVideoThumbnail(playlistItem.Snippet.Thumbnails), // Video thumbnail <- This function gets the highest quality avaliable
+                    Date = ConvertVideoDateTime(playlistItem.Snippet.PublishedAt), // Get the published date (formated and converted to correct time zone)
+                    Id = playlistItem.ContentDetails.VideoId
+            };
 
                 // Add video to data context list
                 videos_data.Add(video);
@@ -216,13 +233,60 @@ namespace WinBeta_Videos
             progressRing.IsActive = false;
         }
 
-        private string GetVideoThumbnail(PlaylistItem playlistItem)
+        private async void mainSearchBox_QuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            // Show Progress Ring
+            progressRing.IsActive = true;
+
+            // Reset DataContext and Lists
+            videos_data = null;
+            videos_data = new ObservableCollection<Video>();
+            DataContext = videos_data;
+
+            videosTitle.Text = "Videos - " + mainSearchBox.QueryText;
+
+            var searchChannelVideosRequest = youtubeService.Search.List("snippet");
+            searchChannelVideosRequest.Q = mainSearchBox.QueryText;
+            searchChannelVideosRequest.ChannelId = WinBetaChannelId;
+            searchChannelVideosRequest.MaxResults = 25;
+
+            var searchChannelVideosResponse = await searchChannelVideosRequest.ExecuteAsync();
+
+            foreach (var videoItem in searchChannelVideosResponse.Items)
+            {
+                if (videoItem.Id.Kind == "youtube#video")
+                {
+                    // Create a video object to pass into the data context
+                    Video video = new Video()
+                    {
+                        Title = videoItem.Snippet.Title, // Video Title
+                        Thumbnail = GetVideoThumbnail(videoItem.Snippet.Thumbnails), // Video thumbnail <- This function gets the highest quality avaliable
+                        Date = ConvertVideoDateTime(videoItem.Snippet.PublishedAt), // Get the published date (formated and converted to correct time zone)
+                        Id = videoItem.Id.VideoId
+                    };
+
+                    // Add video to data context list
+                    videos_data.Add(video);
+                }
+            }
+
+            // Hide Progress Ring
+            progressRing.IsActive = false;
+        }
+
+        private string GetVideoThumbnail(ThumbnailDetails thumb)
         {
             // Check if max res image is avaliable (not all videos have them)
-            if (playlistItem.Snippet.Thumbnails.Maxres != null)
-                return playlistItem.Snippet.Thumbnails.Maxres.Url; // Max Res
+            if (thumb.Maxres != null)
+                return thumb.Maxres.Url; // Max Res
             else // If not get next best thing
-                return playlistItem.Snippet.Thumbnails.Medium.Url; // Medium Res
+                return thumb.Medium.Url; // Medium Res
+        }
+
+        private void videoBox_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            Video r = (Video)((FrameworkElement)e.OriginalSource).DataContext;
+            this.Frame.Navigate(typeof(VideoPage), r);
         }
 
         private string ConvertVideoDateTime(DateTime? dt)
@@ -309,10 +373,9 @@ namespace WinBeta_Videos
         public class Video
         {
             public String Title { get; set; }
-            public String VideoId { get; set; }
+            public String Id { get; set; }
             public String Thumbnail { get; set; }
             public String Date { get; set; }
-            public String ViewCount { get; set; }
         }
 
         public class Playlist

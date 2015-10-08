@@ -6,6 +6,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Page.Resources>
+        <MenuFlyout x:Key="FilterFlyout" x:Name="filterFlyout">
+            <MenuFlyoutItem x:Name="clearFilter" Click="clearFilter_Click">Clear</MenuFlyoutItem>
+            <MenuFlyoutSeparator></MenuFlyoutSeparator>
+        </MenuFlyout>
+    </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid Background="#FFE6E6E6" Height="50" VerticalAlignment="Top" HorizontalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="#FFC5C5C5">
@@ -13,9 +19,9 @@
             <AppBarButton x:Name="searchButton" Icon="Find" Foreground="#FF0078D7" Margin="70,0,0,0"/>
 
             <AppBarButton x:Name="settingsButton" Icon="Setting" Foreground="#FF0078D7" HorizontalAlignment="Right"/>
-            <AppBarButton x:Name="filterButton" Icon="Filter" Foreground="#FF0078D7" Margin="0,0,70,0" HorizontalAlignment="Right"/>
-           
-            <TextBlock Text="Videos"  HorizontalAlignment="Center" TextAlignment="Center" FontWeight="SemiBold" FontSize="20" Foreground="#FF4F4F4F" VerticalAlignment="Center"></TextBlock>
+            <AppBarButton x:Name="filterButton" Icon="Filter" Foreground="#FF0078D7" Margin="0,0,70,0" HorizontalAlignment="Right" Flyout="{StaticResource FilterFlyout}"/>
+
+            <TextBlock x:Name="videosTitle" Text="Videos"  HorizontalAlignment="Center" TextAlignment="Center" FontWeight="SemiBold" FontSize="20" Foreground="#FF4F4F4F" VerticalAlignment="Center"></TextBlock>
         </Grid>
         <GridView x:Name="listView" HorizontalAlignment="Center" Margin="0,60,0,0" VerticalAlignment="Stretch" ItemsSource="{Binding}">
             <GridView.ItemTemplate>
@@ -24,7 +30,7 @@
                         <TextBlock IsTextScaleFactorEnabled="False" FontStretch="Normal" Height="40" Margin="10,10,10,20" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" Text="{Binding Title}" FontSize="20" FontWeight="Normal" Foreground="#FF1F1F1F" VerticalAlignment="Top"/>
                         <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Left" Width="580" Height="326" Margin="10,50,10,40" Stretch="UniformToFill"/>
                         <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="16" Text="{Binding Date}"></TextBlock>
-                     </Grid>
+                    </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>

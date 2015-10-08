@@ -1,16 +1,17 @@
-﻿using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
+
+//Google APIs
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 
 namespace WinBeta_Videos
 {
@@ -38,6 +39,8 @@ namespace WinBeta_Videos
         YouTubeService youtubeService; // Used for accessing API
         string WinBetaChannelId = "UC70UzaroFf5GcyecHOGw-tw"; // WinBeta Channel ID
         ObservableCollection<Video> videos_data; // Holds the videos
+
+        Playlist selectedPlaylist = null;
 
         public MainPage()
         {
@@ -70,7 +73,8 @@ namespace WinBeta_Videos
             }
             catch (Exception ex)
             {
-                // TODO Handle
+                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
+                await m.ShowAsync();
             }
         }
 
@@ -82,7 +86,41 @@ namespace WinBeta_Videos
             }
             catch (Exception ex)
             {
-                // TODO Handle
+                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
+                await m.ShowAsync();
+            }
+        }
+
+        private async void clearFilter_Click(object sender, RoutedEventArgs e)
+        {
+            selectedPlaylist = null;
+            videosTitle.Text = "Videos";
+
+            try
+            {
+                await GetVideos();
+            }
+            catch (Exception ex)
+            {
+                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
+                await m.ShowAsync();
+            }
+
+        }
+
+        private async void FilterVideos(Playlist p)
+        {
+            selectedPlaylist = p;
+            videosTitle.Text = "Videos - " + p.Title;
+
+            try
+            {
+                await GetVideos();
+            }
+            catch (Exception ex)
+            {
+                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
+                await m.ShowAsync();
             }
         }
 
@@ -105,11 +143,57 @@ namespace WinBeta_Videos
             var searchChannelResponse = await searchChannelRequest.ExecuteAsync();
             var channel = searchChannelResponse.Items.First(); // Choose the first (and only) item
 
+            // Check if there are any items in the flyout (by default threes 2, the clear button, and seperator)
+            if (filterFlyout.Items.Count == 2)
+            {
+                // Playlist Request
+                var allPlaylistsRequest = youtubeService.Playlists.List("snippet, id");
+                allPlaylistsRequest.ChannelId = WinBetaChannelId;
+                allPlaylistsRequest.MaxResults = 50; // Max of 50 results
+
+                // Playlist Response
+                var allPlaylistsResponse = await allPlaylistsRequest.ExecuteAsync();
+
+                //  Loop through all the playlists
+                foreach (var playlistItem in allPlaylistsResponse.Items)
+                {
+                    // Create a playlist object
+                    Playlist playlist = new Playlist()
+                    {
+                        Title = playlistItem.Snippet.Title,
+                        ID = playlistItem.Id
+                    };
+
+                    // Command (To be used in the flyout items)
+                    var MyCommand = new DelegateCommand<Playlist>(FilterVideos);
+
+                    // Add a new Flyout item
+                    filterFlyout.Items.Add(new MenuFlyoutItem()
+                    {
+                        Text = playlist.Title, // Playlist Title
+                        Command = MyCommand, // Command to run
+                        CommandParameter = playlist // Command Parameter
+                    });
+                }        
+            }
+
+            // If there is no selected playlist
+            if (selectedPlaylist == null)
+            {
+                // Create default uploads playlist
+                selectedPlaylist = new Playlist()
+                {
+                    Title = "All Uploads",
+                    ID = channel.ContentDetails.RelatedPlaylists.Uploads // Uploads ID
+                };
+            }
+
             // Send a request to the YouTube API to search for playlists on youtube channel 
             // (for now only grab upload playlist, later on will grab all playlists and let user filter)
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
-            playlistRequest.PlaylistId = channel.ContentDetails.RelatedPlaylists.Uploads; // Get the uploads playlist
+            playlistRequest.PlaylistId = selectedPlaylist.ID; // Get the uploads playlist
             playlistRequest.MaxResults = 50; // Max of 50 results
+
 
             // API response
             var playlistResponse = await playlistRequest.ExecuteAsync();
@@ -231,6 +315,10 @@ namespace WinBeta_Videos
             public String ViewCount { get; set; }
         }
 
-        
+        public class Playlist
+        {
+            public String Title { get; set; }
+            public String ID { get; set; }
+        }
     }
 }

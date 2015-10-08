@@ -11,16 +11,17 @@ WinBeta Video requires the YouTube .NET API, and both MyToolkit and MyToolkit Ex
 
 ## Features
 #### Filtering Videos
-![Filter Images](/images/filter.png)
+![Filter Images](/Images/filter.png)
 
 #### Searching for Videos
-![Filter Images](/images/search.png)
+![Filter Images](/Images/search.png)
 
 #### Watching Videos
-![Filter Images](/images/watch.png)
+![Filter Images](/Images/videos.png)
+
 
 #### Sharing Videos
-![Filter Images](/images/share.png)
+![Filter Images](/Images/share.png)
 
 ## To Do
 * [x] View all Videos

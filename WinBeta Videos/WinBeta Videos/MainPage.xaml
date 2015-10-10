@@ -33,8 +33,8 @@
                 <DataTemplate>
                     <Grid x:Name="videoBox"  Background="#FFE6E6E6" Margin="5" HorizontalAlignment="Stretch" MaxWidth="580" Height="340" BorderBrush="#FFC5C5C5" BorderThickness="1,1,1,1" Tapped="videoBox_Tapped">
                         <TextBlock IsTextScaleFactorEnabled="False" FontStretch="Normal" Height="40" Margin="10,10,10,20" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" Text="{Binding Title}" FontSize="20" FontWeight="Normal" Foreground="#FF1F1F1F" VerticalAlignment="Top"/>
-                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Left" Width="580" Height="326" Margin="10,50,10,40" Stretch="UniformToFill"/>
-                        <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="16" Text="{Binding Date}"></TextBlock>
+                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Center"  Height="326" Margin="10,50,10,40" Stretch="UniformToFill"/>
+                        <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="15" Text="{Binding Date}"></TextBlock>
                     </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>

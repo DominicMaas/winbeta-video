@@ -13,6 +13,7 @@ using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace WinBeta_Videos
 {
@@ -50,6 +51,8 @@ namespace WinBeta_Videos
 
         Playlist selectedPlaylist = null;
 
+        string mainVideoPageToken = null;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -72,7 +75,18 @@ namespace WinBeta_Videos
             applicationView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
             applicationView.TitleBar.InactiveForegroundColor = Colors.DarkGray;
 
+            applicationView.SetDesiredBoundsMode(ApplicationViewBoundsMode.UseCoreWindow);
+
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
+
+
+           // var scrollViewer = listView.
+
+           // var scrollbars = scrollViewer.GetDescendantsOfType<ScrollBar>().ToList();
+
+           // var verticalBar = scrollbars.FirstOrDefault(x => x.Orientation == Orientation.Vertical);
+
+
         }
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
@@ -83,28 +97,12 @@ namespace WinBeta_Videos
                 ApplicationName = "WinBeta Videos"
             });
 
-            try
-            {
-                await GetVideos();
-            }
-            catch (Exception ex)
-            {
-                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
-                await m.ShowAsync();
-            }
+            await RunGetVideos();
         }
 
         private async void refreshButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            try
-            {
-                await GetVideos();
-            }
-            catch (Exception ex)
-            {
-                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
-                await m.ShowAsync();
-            }
+            await RunGetVideos();
         }
 
         private async void clearFilter_Click(object sender, RoutedEventArgs e)
@@ -112,15 +110,7 @@ namespace WinBeta_Videos
             selectedPlaylist = null;
             videosTitle.Text = "Videos";
 
-            try
-            {
-                await GetVideos();
-            }
-            catch (Exception ex)
-            {
-                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
-                await m.ShowAsync();
-            }
+            await RunGetVideos();
 
         }
 
@@ -129,6 +119,25 @@ namespace WinBeta_Videos
             selectedPlaylist = p;
             videosTitle.Text = "Videos - " + p.Title;
 
+            await RunGetVideos();
+        }
+
+        private async Task RunGetVideos()
+        {
+            try
+            {
+                mainVideoPageToken = null;
+                await GetVideos();
+            }
+            catch (Exception ex)
+            {
+                MessageDialog m = new MessageDialog("Could not load videos: " + ex.Message, "WinBeta Videos Error");
+                await m.ShowAsync();
+            }
+        }
+
+        private async void VideoGetNextPage()
+        {
             try
             {
                 await GetVideos();
@@ -208,11 +217,14 @@ namespace WinBeta_Videos
             // (for now only grab upload playlist, later on will grab all playlists and let user filter)
             var playlistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
             playlistRequest.PlaylistId = selectedPlaylist.ID; // Get the uploads playlist
-            playlistRequest.MaxResults = 50; // Max of 50 results
+            playlistRequest.MaxResults = 10; // Max of 50 results
 
+           if (mainVideoPageToken != null) playlistRequest.PageToken = mainVideoPageToken;
 
-            // API response
-            var playlistResponse = await playlistRequest.ExecuteAsync();
+             // API response
+             var playlistResponse = await playlistRequest.ExecuteAsync();
+
+            mainVideoPageToken = playlistResponse.NextPageToken;
 
             // Loop through all items in upload playlist
             foreach (var playlistItem in playlistResponse.Items)

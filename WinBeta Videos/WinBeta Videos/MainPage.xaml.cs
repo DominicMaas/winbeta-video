@@ -14,6 +14,7 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Navigation;
 
 namespace WinBeta_Videos
 {
@@ -56,7 +57,7 @@ namespace WinBeta_Videos
         public MainPage()
         {
             this.InitializeComponent();
-            Loaded += OnPageLoaded;
+           // Loaded += OnPageLoaded;
 
             // Get the Application View
             var applicationView = ApplicationView.GetForCurrentView();
@@ -79,43 +80,48 @@ namespace WinBeta_Videos
 
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
 
-
-           // var scrollViewer = listView.
-
-           // var scrollbars = scrollViewer.GetDescendantsOfType<ScrollBar>().ToList();
-
-           // var verticalBar = scrollbars.FirstOrDefault(x => x.Orientation == Orientation.Vertical);
-
-
+            this.NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
         }
 
         private void OnScrollViewerViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
         {
             var verticalOffset = sv.VerticalOffset;
-            var maxVerticalOffset = sv.ScrollableHeight; //sv.ExtentHeight - sv.ViewportHeight;
+            var maxVerticalOffset = sv.ScrollableHeight;
 
-            if (maxVerticalOffset < 0 ||
-                verticalOffset == maxVerticalOffset)
+            if (maxVerticalOffset < 0 || verticalOffset == maxVerticalOffset)
             {
                 VideoGetNextPage();
             }
-            else
-            {
-                // Not scrolled to bottom
-               // rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }
         }
 
-        private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            // Initialize the YouTube Service
-            youtubeService = new YouTubeService(new BaseClientService.Initializer() {
+            if (e.NavigationMode == NavigationMode.Back) return;
+
+            youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
                 ApiKey = Helper.GetApiKey(), // Hidden Away (API_KEY)
                 ApplicationName = "WinBeta Videos"
             });
 
             await RunGetVideos();
+
         }
+
+      //  private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        //{
+
+            // Initialize the YouTube Service
+           // youtubeService = new YouTubeService(new BaseClientService.Initializer() {
+           //     ApiKey = Helper.GetApiKey(), // Hidden Away (API_KEY)
+           //     ApplicationName = "WinBeta Videos"
+           // });
+
+           // await RunGetVideos();
+
+
+
+       // }
 
         private async void refreshButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
@@ -173,6 +179,11 @@ namespace WinBeta_Videos
 
         private async Task GetVideos()
         {
+            if (mainVideoPageToken == "eol")
+            {
+                return;
+            }
+
             // Show Progress Ring
             progressRing.IsActive = true;
 
@@ -236,28 +247,33 @@ namespace WinBeta_Videos
             // (for now only grab upload playlist, later on will grab all playlists and let user filter)
             var playlistRequest = youtubeService.PlaylistItems.List("snippet, contentDetails");
             playlistRequest.PlaylistId = selectedPlaylist.ID; // Get the uploads playlist
-            playlistRequest.MaxResults = 10; // Max of 50 results
+            playlistRequest.MaxResults = 10; // Max of 10 results
 
-           if (mainVideoPageToken != null) playlistRequest.PageToken = mainVideoPageToken;
+           
+            if (mainVideoPageToken != null)
+            {
+                playlistRequest.PageToken = mainVideoPageToken;
+            }
 
              // API response
              var playlistResponse = await playlistRequest.ExecuteAsync();
 
-            mainVideoPageToken = playlistResponse.NextPageToken;
+
+            if (playlistResponse.NextPageToken != null)
+                mainVideoPageToken = playlistResponse.NextPageToken;
+            else
+                mainVideoPageToken = "eol";
 
             // Loop through all items in upload playlist
             foreach (var playlistItem in playlistResponse.Items)
             {
                 // Create a video object to pass into the data context
-                Video video = new Video() {
+                videos_data.Add (new Video() {
                     Title = playlistItem.Snippet.Title, // Video Title
                     Thumbnail = GetVideoThumbnail(playlistItem.Snippet.Thumbnails), // Video thumbnail <- This function gets the highest quality avaliable
                     Date = ConvertVideoDateTime(playlistItem.Snippet.PublishedAt), // Get the published date (formated and converted to correct time zone)
                     Id = playlistItem.ContentDetails.VideoId
-            };
-
-                // Add video to data context list
-                videos_data.Add(video);
+                });
             }
 
             // Hide Progress Ring

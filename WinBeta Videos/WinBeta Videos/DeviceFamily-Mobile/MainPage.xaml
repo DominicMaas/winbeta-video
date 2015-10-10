@@ -32,17 +32,19 @@
         <Grid Height="50" VerticalAlignment="Top" HorizontalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="#FFC5C5C5" Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}">
             <TextBlock x:Name="videosTitle" Text="Videos"  HorizontalAlignment="Center" TextAlignment="Center" FontWeight="SemiBold" FontSize="20" Foreground="#FF4F4F4F" VerticalAlignment="Center"></TextBlock>
         </Grid>
-        <GridView x:Name="listView" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Stretch" ItemsSource="{Binding}">
-            <GridView.ItemTemplate>
-                <DataTemplate>
-                    <Grid x:Name="videoBox"  Background="#FFE6E6E6" Margin="5" HorizontalAlignment="Stretch" MaxWidth="580" Height="250" BorderBrush="#FFC5C5C5" BorderThickness="1,1,1,1" Tapped="videoBox_Tapped">
-                        <TextBlock IsTextScaleFactorEnabled="False" FontStretch="Normal" Height="40" Margin="10,10,10,20" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" Text="{Binding Title}" FontSize="18" FontWeight="Normal" Foreground="#FF1F1F1F" VerticalAlignment="Top"/>
-                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Center"  Height="250" Margin="10,50,10,40" Stretch="UniformToFill"/>
-                        <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="14" Text="{Binding Date}"></TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
+        <ScrollViewer x:Name="sv" ViewChanged="OnScrollViewerViewChanged" Margin="0,50,0,0"  HorizontalAlignment="Stretch">
+            <GridView x:Name="listView" HorizontalAlignment="Center" VerticalAlignment="Stretch" ItemsSource="{Binding}">
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="videoBox"  Background="#FFE6E6E6" Margin="5" HorizontalAlignment="Stretch" MaxWidth="580" Height="250" BorderBrush="#FFC5C5C5" BorderThickness="1,1,1,1" Tapped="videoBox_Tapped">
+                            <TextBlock IsTextScaleFactorEnabled="False" FontStretch="Normal" Height="40" Margin="10,10,10,20" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" Text="{Binding Title}" FontSize="18" FontWeight="Normal" Foreground="#FF1F1F1F" VerticalAlignment="Top"/>
+                            <Image Source="{Binding Thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Center"  Height="250" Margin="10,50,10,40" Stretch="UniformToFill"/>
+                            <TextBlock VerticalAlignment="Bottom" Margin="10,10,10,0" HorizontalAlignment="Stretch" Height="30" Foreground="#DD1D1D1D" FontSize="14" Text="{Binding Date}"></TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </ScrollViewer>
         <ProgressRing x:Name="progressRing" HorizontalAlignment="Center" VerticalAlignment="Center" Width="64" Height="64"/>
 
 

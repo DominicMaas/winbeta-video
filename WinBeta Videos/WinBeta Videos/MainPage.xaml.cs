@@ -89,6 +89,23 @@ namespace WinBeta_Videos
 
         }
 
+        private void OnScrollViewerViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            var verticalOffset = sv.VerticalOffset;
+            var maxVerticalOffset = sv.ScrollableHeight; //sv.ExtentHeight - sv.ViewportHeight;
+
+            if (maxVerticalOffset < 0 ||
+                verticalOffset == maxVerticalOffset)
+            {
+                VideoGetNextPage();
+            }
+            else
+            {
+                // Not scrolled to bottom
+               // rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }
+        }
+
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
             // Initialize the YouTube Service
@@ -126,7 +143,12 @@ namespace WinBeta_Videos
         {
             try
             {
-                mainVideoPageToken = null;
+                // Reset DataContext and Lists
+                mainVideoPageToken = null;             
+                videos_data = null;
+                videos_data = new ObservableCollection<Video>();
+                DataContext = videos_data;
+
                 await GetVideos();
             }
             catch (Exception ex)
@@ -154,10 +176,7 @@ namespace WinBeta_Videos
             // Show Progress Ring
             progressRing.IsActive = true;
 
-            // Reset DataContext and Lists
-            videos_data = null;
-            videos_data = new ObservableCollection<Video>();
-            DataContext = videos_data;
+           
 
             // Send a request to the YouTube API to search for channels
             var searchChannelRequest = youtubeService.Channels.List("contentDetails");
